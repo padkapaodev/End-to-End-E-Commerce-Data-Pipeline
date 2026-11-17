@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from pyspark.sql.functions import *
 from pyspark.sql import SparkSession
 
-spark = SparkSession.builder.getOrCreate()
-
 @dataclass
 class goldLayer:
     table_name: str
@@ -12,6 +10,8 @@ class goldLayer:
         self.gold_path = f"project_cat.gold_layer.{self.table_name}"
 
     def gold_sales_item(self):
+
+        spark = SparkSession.builder.getOrCreate()
         dim_products = spark.table("project_cat.silver_layer.dim_products")
         dim_customers = spark.table("project_cat.silver_layer.dim_customers")
         fact_sales = spark.table("project_cat.silver_layer.fact_sales")
@@ -41,6 +41,8 @@ class goldLayer:
         return sales_item
     
     def gold_product_performance(self):
+
+        spark = SparkSession.builder.getOrCreate()
         dim_products = spark.table("project_cat.silver_layer.dim_products")
         fact_sales = spark.table("project_cat.silver_layer.fact_sales")
 
@@ -61,6 +63,8 @@ class goldLayer:
         return product_performance
     
     def gold_customer_monthly_summary(self):
+
+        spark = SparkSession.builder.getOrCreate()
         dim_customers = spark.table("project_cat.silver_layer.dim_customers")
         fact_sales = spark.table("project_cat.silver_layer.fact_sales")
         fact_orders = spark.table("project_cat.silver_layer.fact_orders")

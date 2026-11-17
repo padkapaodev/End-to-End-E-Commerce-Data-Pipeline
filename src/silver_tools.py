@@ -4,7 +4,6 @@ from pyspark.sql.window import Window
 from delta.tables import DeltaTable
 from pyspark.sql import SparkSession
 
-spark = SparkSession.builder.getOrCreate()
 
 def get_reason(df):
     control_column = [column for column in df.columns if column.startswith("_") and column != "_sk"]
@@ -39,6 +38,8 @@ class silverLayer:
 
     @classmethod
     def get_config(cls, table_name):
+
+        spark = SparkSession.builder.getOrCreate()
         config_table = ( spark.table("project_cat.default.config_table")
                         .filter(col("table_name")== table_name)
                         .first()
@@ -52,6 +53,7 @@ class silverLayer:
     
     def get_bronze_data(self):
 
+        spark = SparkSession.builder.getOrCreate()
         df = ( spark.table(self.file_path)
               .withColumn("_sk", monotonically_increasing_id())
               .drop("_file_name", "_rescued_data","_processing_time")
@@ -60,6 +62,7 @@ class silverLayer:
     
     def drop_dup_columns(self, main_table, df1, df2):
 
+        spark = SparkSession.builder.getOrCreate()
         main_df = main_table.select("_sk", *self.data_column)
 
         df_1 = spark.table(f"project_cat.bronze_layer.{df1}")
@@ -133,6 +136,7 @@ class silverLayer:
     
     def load_into_silver(self, cleaned_data):
 
+        spark = cleaned_data.sparkSession
         if spark.catalog.tableExists(self.silver_path):
             target = DeltaTable.forName(spark, (self.silver_path))
             match_condition = " and ".join([f"t.{key} == s.{key}" for key in self.keys])

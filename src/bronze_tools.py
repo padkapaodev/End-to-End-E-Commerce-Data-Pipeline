@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from pyspark.sql.functions import col, current_timestamp
 from pyspark.sql import SparkSession
 
-spark = SparkSession.builder.getOrCreate()
-
 @dataclass
 class bronzeLayer:
     table_name: str 
@@ -13,6 +11,8 @@ class bronzeLayer:
 
     @classmethod
     def get_config(cls, table_name):
+
+        spark = SparkSession.builder.getOrCreate()
         config_table = ( spark.table("project_cat.default.config_table")
                         .filter(col("table_name")== table_name)
                         .first())
@@ -24,6 +24,8 @@ class bronzeLayer:
         )
 
     def get_data(self):
+
+        spark = SparkSession.builder.getOrCreate()
         df = ( spark.readStream
             .format("cloudFiles")
             .option("cloudFiles.format", self.format)
